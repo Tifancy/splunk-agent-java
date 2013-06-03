@@ -1,6 +1,7 @@
 package com.splunk.javaagent;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
@@ -57,11 +58,19 @@ public class SplunkJavaAgent {
 
 	public static void premain(String agentArgument,
 			Instrumentation instrumentation) {
-
+		
 		try {
 			agent = new SplunkJavaAgent();
 
-			if (!agent.loadProperties())
+			File propertiesFile = new File(agentArgument);
+			InputStream properties;
+			if (!propertiesFile.exists()) {
+				properties = agent.getJarPropertiesStream();
+			} else {
+				properties = new FileInputStream(propertiesFile);
+			}
+			
+			if (!agent.loadProperties(properties))
 				return;
 			if (!agent.initCommonProperties())
 				return;
@@ -477,12 +486,14 @@ public class SplunkJavaAgent {
 		return true;
 
 	}
-
-	private boolean loadProperties() {
-
+	
+	private InputStream getJarPropertiesStream() {
+		return ClassLoader.getSystemResourceAsStream("splunkagent.properties");	
+	}
+	
+	private boolean loadProperties(InputStream in) {
 		this.props = new Properties();
-		InputStream in = ClassLoader
-				.getSystemResourceAsStream("splunkagent.properties");
+		
 		try {
 			this.props.load(in);
 		} catch (IOException e) {

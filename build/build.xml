@@ -86,8 +86,11 @@
             
         </jar>
 
-        <delete dir="${temp_build}/${classes}" />
+    	<delete file="${main_jar}" />
+    	<copy file="${temp_build}/${main_jar}" tofile="${main_jar}" overwrite="true" />
 
+        <delete dir="${temp_build}/${classes}" />
+    	
         <tar
             compression="${compressionType}"
             destfile="${release}/${product_name}${suffix}" >
