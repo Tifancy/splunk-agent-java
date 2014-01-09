@@ -1,4 +1,5 @@
 package com.splunk.javaagent;
+// TODO: Replace this with Maven dependence on splunk-library-javalogging.
 
 /**
  * <pre>

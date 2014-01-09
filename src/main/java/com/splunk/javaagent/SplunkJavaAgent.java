@@ -24,100 +24,43 @@ import com.splunk.javaagent.transport.SplunkTransport;
 
 public class SplunkJavaAgent {
 
-	private static SplunkJavaAgent agent;
+    private static final String DEFAULT_PROPERTIES_FILE = "default.properties";
 
-	private Properties props;
-	private SplunkTransport transport;
-	private List<FilterListItem> whiteList;
-	private List<FilterListItem> blackList;
-	private boolean traceMethodExited;
-	private boolean traceMethodEntered;
-	private boolean traceClassLoaded;
-	private boolean traceErrors;
-	private boolean traceJMX;
-	private boolean traceHprof;
-	private Map<String, Integer> jmxConfigFiles;
-	private List<Byte> hprofRecordFilter;
-	private Map<Byte, List<Byte>> hprofHeapDumpSubRecordFilter;
-	private String hprofFile;
-	private int hprofFrequency = 600;// seconds
-	private Map<String, String> userTags;
-	private ArrayBlockingQueue<SplunkLogEvent> eventQueue;
-	private int queueSize = 10000;
-	private String appName;
-	private String appID;
+	public static void premain(String arg, Instrumentation instrumentation) {
+        AgentConfiguration configuration = new AgentConfiguration();
+        File propertiesFile = new File(arg);
 
-	private TransporterThread transporterThread;
+        if (!propertiesFile.exists()) {
+            try {
+                configuration.load(ClassLoader.getSystemResourceAsStream(DEFAULT_PROPERTIES_FILE));
+            } catch (IOException e) {
+                System.err.println("Agent could not find its default config file. Failing.");
+                System.exit(100);
+            }
+        } else {
+            try {
+                configuration.load(new FileInputStream(propertiesFile));
+            } catch (IOException e) {
+                System.err.println("Agent could not open config file " + arg + "; failing.");
+                System.exit(100);
+            }
+        }
 
-	public SplunkJavaAgent() {
+        // Open Splunk TCP port writer
 
-		this.whiteList = new ArrayList<FilterListItem>();
-		this.blackList = new ArrayList<FilterListItem>();
+        // initJMX
+        // initHprof
 
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                // Stop Splunk logging and close that port
+            }
+        });
+
+        instrumentation.addTransformer(new SplunkClassFileTransformer());
 	}
 
-	public static void premain(String agentArgument,
-			Instrumentation instrumentation) {
-		
-		try {
-			agent = new SplunkJavaAgent();
-
-			File propertiesFile = new File(agentArgument);
-			InputStream properties;
-			if (!propertiesFile.exists()) {
-				properties = agent.getJarPropertiesStream();
-			} else {
-				properties = new FileInputStream(propertiesFile);
-			}
-			
-			if (!agent.loadProperties(properties))
-				return;
-			if (!agent.initCommonProperties())
-				return;
-			if (!agent.initTransport())
-				return;
-			if (!agent.initTracing())
-				return;
-			if (!agent.initFilters())
-				return;
-			if (!agent.initJMX())
-				return;
-			if (!agent.initHprof())
-				return;
-
-			Runtime.getRuntime().addShutdownHook(new Thread() {
-				public void run() {
-					try {
-						if (agent.transport != null)
-							agent.transport.stop();
-					} catch (Exception e) {
-					}
-				}
-			});
-
-			instrumentation.addTransformer(new SplunkClassFileTransformer());
-
-		} catch (Throwable t) {
-
-		}
-
-	}
-
-	private boolean initTracing() {
-
-		this.traceClassLoaded = Boolean.parseBoolean(agent.props.getProperty(
-				"trace.classLoaded", "true"));
-		this.traceMethodEntered = Boolean.parseBoolean(agent.props.getProperty(
-				"trace.methodEntered", "true"));
-		this.traceMethodExited = Boolean.parseBoolean(agent.props.getProperty(
-				"trace.methodExited", "true"));
-		this.traceErrors = Boolean.parseBoolean(agent.props.getProperty(
-				"trace.errors", "true"));
-
-		return true;
-	}
-
-	private boolean initHprof() {
+	/*private boolean initHprof() {
 
 		this.traceHprof = Boolean.parseBoolean(agent.props.getProperty(
 				"trace.hprof", "false"));
@@ -197,26 +140,6 @@ public class SplunkJavaAgent {
 		return true;
 	}
 
-	private boolean initCommonProperties() {
-
-		this.appName = props.getProperty("agent.app.name", "");
-		this.appID = props.getProperty("agent.app.instance", "");
-
-		String tags = (String) props.getProperty("agent.userEventTags", "");
-		this.userTags = new HashMap<String, String>();
-
-		StringTokenizer st = new StringTokenizer(tags, ",");
-		while (st.hasMoreTokens()) {
-			String item = st.nextToken();
-			StringTokenizer st2 = new StringTokenizer(item, "=");
-			String key = st2.nextToken();
-			String value = st2.nextToken();
-			this.userTags.put(key, value);
-
-		}
-
-		return true;
-	}
 
 	class TransporterThread extends Thread {
 
@@ -352,98 +275,7 @@ public class SplunkJavaAgent {
 
 	}
 
-	private boolean initFilters() {
-
-		try {
-			String white = (String) props.getProperty("trace.whitelist", "");
-			String black = (String) props.getProperty("trace.blacklist", "");
-
-			addToList(white, this.whiteList);
-			addToList(black, this.blackList);
-			return true;
-
-		} catch (Exception e) {
-
-			return false;
-		}
-	}
-
-	private void addToList(String items, List<FilterListItem> list) {
-
-		StringTokenizer st = new StringTokenizer(items, ",");
-		while (st.hasMoreTokens()) {
-			String item = st.nextToken();
-			StringTokenizer st2 = new StringTokenizer(item, ":");
-			FilterListItem fli = new FilterListItem();
-			String className = st2.nextToken();
-			fli.setClassName(className);
-			if (st2.hasMoreTokens()) {
-				String methodName = st2.nextToken();
-				fli.setMethodName(methodName);
-
-			}
-			list.add(fli);
-		}
-
-	}
-
-	public static boolean isWhiteListed(String className) {
-
-		if (agent.whiteList.isEmpty())
-			return true;
-		for (FilterListItem item : agent.whiteList) {
-			if (className.startsWith(item.getClassName()))
-				return true;
-		}
-		return false;
-	}
-
-	public static boolean isWhiteListed(String className, String methodName) {
-
-		if (agent.whiteList.isEmpty())
-			return true;
-		for (FilterListItem item : agent.whiteList) {
-			if (className.startsWith(item.getClassName())
-					&& methodName.equals(item.getMethodName()))
-				return true;
-			else if (className.startsWith(item.getClassName())
-					&& item.getMethodName() == null) {
-				return true;
-			}
-		}
-		return false;
-
-	}
-
-	public static boolean isBlackListed(String className) {
-
-		if (agent.blackList.isEmpty())
-			return false;
-		for (FilterListItem item : agent.blackList) {
-			if (className.startsWith(item.getClassName()))
-				return true;
-		}
-		return false;
-	}
-
-	public static boolean isBlackListed(String className, String methodName) {
-
-		if (agent.blackList.isEmpty())
-			return true;
-		for (FilterListItem item : agent.blackList) {
-			if (className.startsWith(item.getClassName())
-					&& methodName.equals(item.getMethodName()))
-				return true;
-			else if (className.startsWith(item.getClassName())
-					&& item.getMethodName() == null) {
-				return true;
-			}
-		}
-		return false;
-
-	}
-
-	private boolean initTransport() {
+   	private boolean initTransport() {
 
 		try {
 			this.transport = (SplunkTransport) Class
@@ -486,28 +318,7 @@ public class SplunkJavaAgent {
 		return true;
 
 	}
-	
-	private InputStream getJarPropertiesStream() {
-		return ClassLoader.getSystemResourceAsStream("splunkagent.properties");	
-	}
-	
-	private boolean loadProperties(InputStream in) {
-		this.props = new Properties();
-		
-		try {
-			this.props.load(in);
-		} catch (IOException e) {
-			return false;
-		} finally {
-			try {
-				in.close();
-			} catch (IOException e) {
-				return false;
-			}
-		}
-		return true;
 
-	}
 
 	public static void classLoaded(String className) {
 
@@ -673,6 +484,6 @@ public class SplunkJavaAgent {
 			}
 		}
 		return false;
-	}
+	}*/
 
 }

@@ -113,7 +113,7 @@ public class FilterListItem {
     public static List<FilterListItem> parseMany(String s) throws ParseException {
         List<FilterListItem> l = new ArrayList<FilterListItem>();
 
-        if (s.isEmpty())
+        if (s == null || s.isEmpty())
             return l;
 
         for (String entry : s.split(",")) {

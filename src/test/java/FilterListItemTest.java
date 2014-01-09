@@ -107,6 +107,13 @@ public class FilterListItemTest {
     }
 
     @Test
+    public void listOfNull() throws ParseException {
+        FilterListItem[] expected = new FilterListItem[] {};
+        FilterListItem[] found = FilterListItem.parseMany(null).toArray(new FilterListItem[]{});
+        Assert.assertArrayEquals(expected, found);
+    }
+
+    @Test
     public void listOfOne() throws ParseException {
         FilterListItem[] expected = new FilterListItem[] {
                 new FilterListItem("com.splunk.dev.MyClass")
