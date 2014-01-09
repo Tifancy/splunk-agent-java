@@ -17,6 +17,9 @@ package com.splunk.javaagent.trace;
  */
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Filter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,6 +72,9 @@ public class FilterListItem {
      * @return A FilterListItem parsed from s.
      */
     public static FilterListItem parse(String s) throws ParseException {
+        if (s.isEmpty())
+            throw new ParseException("FilterListItem.parse cannot accept empty strings.", 0);
+
         String[] components = s.split(":");
 
         if (components.length == 0)
@@ -101,6 +107,35 @@ public class FilterListItem {
         } else {
             // We have only a className.
             return new FilterListItem(className);
+        }
+    }
+
+    public static List<FilterListItem> parseMany(String s) throws ParseException {
+        List<FilterListItem> l = new ArrayList<FilterListItem>();
+
+        if (s.isEmpty())
+            return l;
+
+        for (String entry : s.split(",")) {
+            l.add(FilterListItem.parse(entry));
+        }
+        return l;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof FilterListItem)) {
+            return false;
+        } else {
+            FilterListItem that = (FilterListItem)other;
+            if (!that.getClassName().equals(getClassName()))
+                return false;
+            if (that.hasMethodName() != hasMethodName())
+                return false;
+            if (hasMethodName() && !(that.getMethodName().equals(getMethodName()))) {
+                return false;
+            }
+            return true;
         }
     }
 }

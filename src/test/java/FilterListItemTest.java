@@ -3,6 +3,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * Copyright 2014 Splunk, Inc.
@@ -20,10 +22,6 @@ import java.text.ParseException;
  * under the License.
  */
 public class FilterListItemTest {
-    public void assertRaises(Class c, Runnable r) {
-
-    }
-
     @Test(expected=ParseException.class)
     public void withInvalidClassAndMethod() throws ParseException {
         FilterListItem.parse("com.splunk.!abc:boris");
@@ -69,5 +67,78 @@ public class FilterListItemTest {
         Assert.assertEquals("com.splunk.dev.*", f.getClassName());
         Assert.assertTrue(f.hasMethodName());
         Assert.assertEquals("myMethod", f.getMethodName());
+    }
+
+    @Test
+    public void equalsWorksWithClassAlone() {
+        Assert.assertEquals(new FilterListItem("abc"), new FilterListItem("abc"));
+    }
+
+    @Test
+    public void equalsWorksWithClassAndMethod() {
+        Assert.assertEquals(new FilterListItem("abc", "def"), new FilterListItem("abc", "def"));
+    }
+
+    @Test
+    public void equalsFailsWithDifferentClass() {
+        Assert.assertNotEquals(new FilterListItem("abc", "def"), new ArrayList<Integer>());
+    }
+
+    @Test
+    public void equalsFailsWithDifferentClassname() {
+        Assert.assertNotEquals(new FilterListItem("abc", "def"), new FilterListItem("qef", "def"));
+    }
+
+    @Test
+    public void equalsFailsWithDifferentMethod() {
+        Assert.assertNotEquals(new FilterListItem("abc", "def"), new FilterListItem("abc", "qef"));
+    }
+
+    @Test
+    public void equalsFailsWithAndWithoutMethod() {
+        Assert.assertNotEquals(new FilterListItem("abc", "def"), new FilterListItem("abc"));
+    }
+
+    @Test
+    public void listOfNone() throws ParseException {
+        FilterListItem[] expected = new FilterListItem[] {};
+        FilterListItem[] found = FilterListItem.parseMany("").toArray(new FilterListItem[] {});
+        Assert.assertArrayEquals(expected, found);
+    }
+
+    @Test
+    public void listOfOne() throws ParseException {
+        FilterListItem[] expected = new FilterListItem[] {
+                new FilterListItem("com.splunk.dev.MyClass")
+        };
+
+        FilterListItem[] found = FilterListItem.parseMany("com.splunk.dev.MyClass").toArray(new FilterListItem[] {});
+
+        Assert.assertArrayEquals(expected, found);
+    }
+
+    @Test
+    public void listOfMany() throws ParseException {
+        FilterListItem[] expected = new FilterListItem[] {
+                new FilterListItem("com.splunk.dev.MyClass"),
+                new FilterListItem("com.boris.*"),
+                new FilterListItem("com.agent.Meep", "myMethod")
+        };
+
+        FilterListItem[] found = FilterListItem.parseMany(
+                "com.splunk.dev.MyClass,com.boris.*,com.agent.Meep:myMethod"
+        ).toArray(new FilterListItem[] {});
+
+        Assert.assertArrayEquals(expected, found);
+    }
+
+    @Test
+    public void listOfOneInvalid() throws ParseException {
+
+    }
+
+    @Test
+    public void listOfManyWithOneInvalid() throws ParseException {
+
     }
 }
