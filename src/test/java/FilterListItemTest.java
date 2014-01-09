@@ -1,5 +1,5 @@
 import com.splunk.javaagent.trace.FilterListItem;
-import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -19,55 +19,55 @@ import java.text.ParseException;
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-public class FilterListItemTest extends TestCase {
+public class FilterListItemTest {
     public void assertRaises(Class c, Runnable r) {
 
     }
 
     @Test(expected=ParseException.class)
-    public void testWithInvalidClassAndMethod() throws ParseException {
+    public void withInvalidClassAndMethod() throws ParseException {
         FilterListItem.parse("com.splunk.!abc:boris");
     }
 
     @Test(expected=ParseException.class)
-    public void testWithInvalidMethod() throws ParseException {
+    public void withInvalidMethod() throws ParseException {
         FilterListItem.parse("com.splunk.abc:!boris??");
     }
 
-    @Test
-    public void testWithInvalidClassAlone() throws ParseException {
+    @Test(expected=ParseException.class)
+    public void withInvalidClassAlone() throws ParseException {
         FilterListItem.parse("com.splunk.!abc");
     }
 
     @Test
-    public void testWithClassAlone() {
-        FilterListItem f = new FilterListItem("com.splunk.dev.MyClass");
-        assertEquals("com.splunk.dev.MyClass", f.getClassName());
-        assertFalse(f.hasMethodName());
-        assertNull(f.getMethodName());
+    public void withClassAlone() throws ParseException {
+        FilterListItem f = FilterListItem.parse("com.splunk.dev.MyClass");
+        Assert.assertEquals("com.splunk.dev.MyClass", f.getClassName());
+        Assert.assertFalse(f.hasMethodName());
+        Assert.assertNull(f.getMethodName());
     }
 
     @Test
-    public void testWithWildcardClassAlone() {
-        FilterListItem f = new FilterListItem("com.splunk.dev.*");
-        assertEquals("com.splunk.dev.*", f.getClassName());
-        assertFalse(f.hasMethodName());
-        assertNull(f.getMethodName());
+    public void withWildcardClassAlone() throws ParseException {
+        FilterListItem f = FilterListItem.parse("com.splunk.dev.*");
+        Assert.assertEquals("com.splunk.dev.*", f.getClassName());
+        Assert.assertFalse(f.hasMethodName());
+        Assert.assertNull(f.getMethodName());
     }
 
     @Test
-    public void testWithClassAndMethod() {
-        FilterListItem f = new FilterListItem("com.splunk.dev.MyClass:myMethod");
-        assertEquals("com.splunk.dev.MyClass", f.getClassName());
-        assertTrue(f.hasMethodName());
-        assertEquals("myMethod", f.getMethodName());
+    public void withClassAndMethod() throws ParseException {
+        FilterListItem f = FilterListItem.parse("com.splunk.dev.MyClass:myMethod");
+        Assert.assertEquals("com.splunk.dev.MyClass", f.getClassName());
+        Assert.assertTrue(f.hasMethodName());
+        Assert.assertEquals("myMethod", f.getMethodName());
     }
 
     @Test
-    public void testWithWildcardClassAndMethod() {
-        FilterListItem f = new FilterListItem("com.splunk.dev.*:myMethod");
-        assertEquals("com.splunk.dev.*", f.getClassName());
-        assertTrue(f.hasMethodName());
-        assertEquals("myMethod", f.getMethodName());
+    public void withWildcardClassAndMethod() throws ParseException {
+        FilterListItem f = FilterListItem.parse("com.splunk.dev.*:myMethod");
+        Assert.assertEquals("com.splunk.dev.*", f.getClassName());
+        Assert.assertTrue(f.hasMethodName());
+        Assert.assertEquals("myMethod", f.getMethodName());
     }
 }
