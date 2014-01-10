@@ -4,13 +4,13 @@ package com.splunk.javaagent.hprof2;
  * Created by fross on 1/9/14.
  */
 public class HeapSummaryRecord extends HProfRecord {
-    private final int nLiveBytes;
-    private final int nLiveInstances;
+    private final long nLiveBytes;
+    private final long nLiveInstances;
     private final long nTotalBytes;
     private final long nTotalInstances;
 
-    public HeapSummaryRecord(HProfDumpFile parent, byte typeTag, long baseTimestamp, int timestampOffset,
-                             int nLiveBytes, int nLiveInstances, long nTotalBytes, long nTotalInstances) {
+    public HeapSummaryRecord(HProfDumpFile parent, byte typeTag, long baseTimestamp, long timestampOffset,
+                             long nLiveBytes, long nLiveInstances, long nTotalBytes, long nTotalInstances) {
         super(parent, typeTag, baseTimestamp, timestampOffset);
 
         this.nLiveBytes = nLiveBytes;
@@ -19,11 +19,11 @@ public class HeapSummaryRecord extends HProfRecord {
         this.nTotalInstances = nTotalInstances;
     }
 
-    public int getLiveBytes() {
+    public long getLiveBytes() {
         return nLiveBytes;
     }
 
-    public int getNumberOfLiveInstances() {
+    public long getNumberOfLiveInstances() {
         return nLiveInstances;
     }
 

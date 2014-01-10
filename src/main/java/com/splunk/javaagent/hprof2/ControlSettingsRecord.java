@@ -8,7 +8,7 @@ public class ControlSettingsRecord extends HProfRecord {
     private boolean cpuSamplingOn;
     private short stackTraceDepth;
 
-    public ControlSettingsRecord(HProfDumpFile parent, byte typeTag, long baseTimestamp, int timestampOffset,
+    public ControlSettingsRecord(HProfDumpFile parent, byte typeTag, long baseTimestamp, long timestampOffset,
                                  boolean allocTracingOn, boolean cpuSamplingOn, short stackTraceDepth) {
         super(parent, typeTag, baseTimestamp, timestampOffset);
 

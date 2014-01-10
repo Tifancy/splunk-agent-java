@@ -6,18 +6,18 @@ import java.nio.MappedByteBuffer;
  * Created by fross on 1/9/14.
  */
 public class UnloadClassRecord extends HProfRecord {
-    private int serialNumber;
+    private long serialNumber;
     private String className;
 
     public UnloadClassRecord(HProfDumpFile parent, byte typeTag, long baseTimestamp,
-                             int timestampOffset, int serialNumber, String className) {
+                             long timestampOffset, long serialNumber, String className) {
         super(parent, typeTag, baseTimestamp, timestampOffset);
 
         this.serialNumber = serialNumber;
         this.className = className;
     }
 
-    public int getSerialNumber() {
+    public long getSerialNumber() {
         return this.serialNumber;
     }
 

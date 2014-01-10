@@ -8,13 +8,13 @@ import java.util.Map;
  * Created by fross on 1/9/14.
  */
 public class LoadClassRecord extends HProfRecord {
-    private int serialNumber;
+    private long serialNumber;
     private long objectId;
-    private int stackTraceSerialNumber;
+    private long stackTraceSerialNumber;
     private String className;
 
-    public LoadClassRecord(HProfDumpFile parent, byte typeTag, long baseTimestamp, int timestampOffset,
-                           int classSerialNumber, long classObjectId, int stackTraceSerialNumber, String className) {
+    public LoadClassRecord(HProfDumpFile parent, byte typeTag, long baseTimestamp, long timestampOffset,
+                           long classSerialNumber, long classObjectId, long stackTraceSerialNumber, String className) {
         super(parent, typeTag, baseTimestamp, timestampOffset);
 
         this.serialNumber = classSerialNumber;
@@ -23,7 +23,7 @@ public class LoadClassRecord extends HProfRecord {
         this.className = className;
     }
 
-    public int getSerialNumber() {
+    public long getSerialNumber() {
         return this.serialNumber;
     }
 
@@ -31,7 +31,7 @@ public class LoadClassRecord extends HProfRecord {
         return this.objectId;
     }
 
-    public int getStackTraceSerialNumber() {
+    public long getStackTraceSerialNumber() {
         return this.stackTraceSerialNumber;
     }
 

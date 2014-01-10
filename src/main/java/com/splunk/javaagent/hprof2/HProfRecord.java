@@ -67,9 +67,9 @@ public abstract class HProfRecord {
     private HProfDumpFile parent;
     private byte typeTag;
     private long baseTimestamp;
-    private int timestampOffset;
+    private long timestampOffset;
 
-    public HProfRecord(HProfDumpFile parent, byte typeTag, long baseTimestamp, int timestampOffset) {
+    public HProfRecord(HProfDumpFile parent, byte typeTag, long baseTimestamp, long timestampOffset) {
         this.parent = parent;
         this.typeTag = typeTag;
         this.baseTimestamp = baseTimestamp;
@@ -84,7 +84,7 @@ public abstract class HProfRecord {
         return this.baseTimestamp;
     }
 
-    public int getTimestampOffset() {
+    public long getTimestampOffset() {
         return this.timestampOffset;
     }
 }

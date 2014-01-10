@@ -1,4 +1,5 @@
-import com.splunk.javaagent.trace.FilterListItem;
+package com.splunk.javaagent.trace;
+
 import org.junit.Assert;
 import org.junit.Test;
 
