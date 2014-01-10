@@ -4,10 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
-import java.text.ParseException;
-import java.util.Properties;
 
 /*
  * Copyright 2014 Splunk, Inc.

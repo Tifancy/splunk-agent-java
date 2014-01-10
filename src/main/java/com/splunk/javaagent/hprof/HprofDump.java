@@ -38,7 +38,7 @@ public class HprofDump {
 
 				while (buf.position() < buf.limit()) {
 
-					byte tag = buf.get();
+                    byte tag = buf.get();
 					int elapsedTimeMicroSeconds = buf.getInt();
 					int recordLength = buf.getInt();
 
@@ -48,8 +48,8 @@ public class HprofDump {
 						if (record instanceof HeapDumpRecord) {
 							// do nothing
 						} else {
-							SplunkJavaAgent.hprofRecordEvent(tag, (byte) 0,
-									record.getSplunkLogEvent());
+							//SplunkJavaAgent.hprofRecordEvent(tag, (byte) 0,
+							//		record.getSplunkLogEvent());
 						}
 
 					}

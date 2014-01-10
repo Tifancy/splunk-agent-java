@@ -21,21 +21,22 @@ public class SplunkClassFileTransformer implements ClassFileTransformer {
 
 		if (this.getClass().getClassLoader().equals(loader)) {
 
-			if (!SplunkJavaAgent.isBlackListed(className)
+			/*if (!SplunkJavaAgent.isBlackListed(className)
 					&& SplunkJavaAgent.isWhiteListed(className))
 				return processClass(className, classBeingRedefined,
 						classFileBuffer);
 			else
-				return classFileBuffer;
+				return classFileBuffer;*/
 		} else {
 			return classFileBuffer;
 		}
+        return null;
 	}
 
 	private byte[] processClass(String className, Class classBeingRedefined,
 			byte[] classFileBuffer) {
 
-		SplunkJavaAgent.classLoaded(className);
+		//SplunkJavaAgent.classLoaded(className);
 		ClassReader cr = new ClassReader(classFileBuffer);
 		ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
 		ClassTracerAdaptor ca = new ClassTracerAdaptor(cw);

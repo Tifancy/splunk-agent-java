@@ -1,6 +1,7 @@
 package com.splunk.javaagent.hprof;
 
 import com.splunk.javaagent.SplunkLogEvent;
+import com.splunk.javaagent.hprof2.HProfDumpFile;
 
 public class HeapSummaryRecord extends HprofRecord {
 
@@ -9,7 +10,11 @@ public class HeapSummaryRecord extends HprofRecord {
 	private long totalBytesAllocated;
 	private long totalInstancesAllocated;
 
-	@Override
+    public HeapSummaryRecord(HProfDumpFile that, byte typeTag, long baseTimestamp, int timestampOffset, int nLiveBytes, int nLiveInstances, long nTotalBytes, long nTotalInstances) {
+
+    }
+
+    @Override
 	public void parseRecord() {
 
 		this.totalLiveBytes = buf.getInt();

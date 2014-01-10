@@ -84,9 +84,9 @@ public class HeapDumpRecord extends HprofRecord {
 
 				break;
 			}
-			if (subRecord != null)
+			/*if (subRecord != null)
 				SplunkJavaAgent.hprofRecordEvent(this.recordType,
-						subRecord.recordType, subRecord.getSplunkLogEvent());
+						subRecord.recordType, subRecord.getSplunkLogEvent());*/
 
 		}
 

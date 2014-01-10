@@ -1,26 +1,11 @@
 package com.splunk.javaagent;
 
+import com.splunk.javaagent.trace.SplunkClassFileTransformer;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.ArrayBlockingQueue;
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
-import com.splunk.javaagent.hprof.HprofDump;
-import com.splunk.javaagent.jmx.JMXMBeanPoller;
-import com.splunk.javaagent.trace.FilterListItem;
-import com.splunk.javaagent.trace.SplunkClassFileTransformer;
-import com.splunk.javaagent.transport.SplunkTransport;
 
 public class SplunkJavaAgent {
 
@@ -28,8 +13,8 @@ public class SplunkJavaAgent {
 
 	public static void premain(String arg, Instrumentation instrumentation) {
         AgentConfiguration configuration = new AgentConfiguration();
-        File propertiesFile = new File(arg);
 
+        File propertiesFile = new File(arg);
         if (!propertiesFile.exists()) {
             try {
                 configuration.load(ClassLoader.getSystemResourceAsStream(DEFAULT_PROPERTIES_FILE));
@@ -49,7 +34,9 @@ public class SplunkJavaAgent {
         // Open Splunk TCP port writer
 
         // initJMX
-        // initHprof
+
+        // TODO: Create a timertask which dumps HProf files to a temporary file, then loads them and writes them to Splunk.
+        // Schedule it. Add call to cancel it to shutdown hook below.
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
@@ -58,9 +45,23 @@ public class SplunkJavaAgent {
         });
 
         instrumentation.addTransformer(new SplunkClassFileTransformer());
+
+        // finally:
+        //   interrupt HProf thread
+        //   interrupt JMX thread
 	}
 
-	/*private boolean initHprof() {
+
+     /*
+
+	private boolean initHprof() {
+        // Fields:
+        //   trace.hprof :: Boolean
+        //   trace.hprof.tempfile :: String
+        //   trace.hprof.frequency :: Integer
+        //   trace.hprof.recordtypes :: RecordType[:SubTypes],*
+
+        // Start HprofThread, passed current thread, frequency, and dumpfile.
 
 		this.traceHprof = Boolean.parseBoolean(agent.props.getProperty(
 				"trace.hprof", "false"));
@@ -274,7 +275,7 @@ public class SplunkJavaAgent {
 		}
 
 	}
-
+    /*
    	private boolean initTransport() {
 
 		try {

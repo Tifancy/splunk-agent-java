@@ -31,7 +31,7 @@ public class SplunkJavaAgentTransport implements Transport {
 	@Override
 	public void transport(SplunkLogEvent event) {
 
-		SplunkJavaAgent.jmxEvent(event);
+		//SplunkJavaAgent.jmxEvent(event);
 
 	}
 

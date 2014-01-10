@@ -42,7 +42,7 @@ public class SplunkNotificationListener implements NotificationListener {
 			event.addPair("userData", notification.getUserData().toString());
 			event.addPair("source", notification.getSource().toString());
 			event.addPair("class", notification.getClass().getCanonicalName());
-			SplunkJavaAgent.jmxEvent(event);
+			//SplunkJavaAgent.jmxEvent(event);
 		}
 
 	}

@@ -66,10 +66,10 @@ public abstract class HprofRecord {
 		switch (tag) {
 
 		case RECORD_UTF8:
-			record = new UTF8Record();
+			//record = new UTF8Record();
 			break;
 		case RECORD_LOAD_CLASS:
-			record = new LoadClassRecord();
+			//record = new LoadClassRecord();
 			break;
 		case RECORD_UNLOAD_CLASS:
 			record = new UnloadClassRecord();
@@ -84,7 +84,7 @@ public abstract class HprofRecord {
 			record = new AllocSitesRecord();
 			break;
 		case RECORD_HEAP_SUMMARY:
-			record = new HeapSummaryRecord();
+			//record = new HeapSummaryRecord();
 			break;
 		case RECORD_START_THREAD:
 			record = new StartThreadRecord();
